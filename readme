@@ -1,0 +1,7 @@
+first install those pip packages
+
+1. fastapi
+2. uvicorn
+3. requests
+4. PIL
+5. BeautifulSoup

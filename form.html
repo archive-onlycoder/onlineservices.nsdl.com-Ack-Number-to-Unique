@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Image Uploader</title>
+<style>
+body *{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+body {
+  font-family: sans-serif;
+}
+
+form {
+  width: 500px;
+  margin: 0 auto;
+}
+
+input[type="text"] {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  height: 30px;
+  width: 100%;
+  padding: 0px 8px;
+  margin-bottom: 8px;
+}
+label {
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+    margin-top: 20px;
+    display: block;
+}
+input[type="submit"],
+button {
+  background-color: #000;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 7px;
+  display: block;
+}
+
+.preview {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+body{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+.uploader{
+  width:400px;
+  border: 2px solid #ccc;
+  color: rgba(0,0,0,0.7);
+  position: relative;
+  padding: 15px;
+}
+input[type~=submit]{
+  margin: auto;
+  margin-top: 20px;
+}
+.output{
+    margin-top: 7px;
+    margin-bottom: 4px;
+    width: 100%;
+}
+.sec{
+    margin-top: 18px;
+    border-bottom: 2px solid gray;
+    padding-bottom: 12px;
+}
+pre{
+    width: 100%;
+    display: block;
+    overflow: auto;
+}
+::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+</style>
+</head>
+<body>
+<form action="/upload-image" method="POST" onsubmit="event.preventDefault();">
+  <div class="uploader">
+    <div class="sec" id="SEC1">
+        <label>1. Genarate Token</label>
+        <button onclick="get_data('SEC1')">Get</button>
+        <pre>http://example.com/get_token</pre>
+        <code><div class="output"></div></code>
+    </div>
+    <div class="sec" id="SEC2">
+        <label>2.Get Your Capcha</label>
+        <input type="text" id="token" placeholder="Your Token">
+        <button onclick="get_data('SEC2')">Get Capcha</button>
+        <pre>http://example.com/get_captcha/{TOKEN}</pre>
+        <br>
+        <div class="output">
+            <img id='cap_img' src="https://picsum.photos/100/30">
+        </div>
+    </div>
+    <div class="sec"  id="SEC3">
+        <label>3.Get Api Data</label>
+        <input type="text" id="dl" placeholder="Driving Licence" >
+        <input type="text" id="dob" placeholder="Date Of Birth,  DD-MM-YYYY Format" >
+        <input type="text" id="capcha" placeholder="Capcha Code" >
+        <input type="text" id="token" placeholder="Token" >
+        <pre>http://example.com/get_data/{TOKEN}/?dlno={DRIVING_LICENCE}&dob={DATE_OF_BIRTH ,Eg: DD-MM-YYYY}&capcha={CAPCHA_CODE}</pre>
+        <code><div class="output"></div></code>
+        <button onclick="get_data('SEC3')">Get Data</button>
+    </div>
+  </div>
+  <script>
+    domain='http://localhost:8000'
+    function get_data(data){
+        if(data=='SEC1'){
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", domain+'/get_token');
+            xhr.send();
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.querySelector('#'+data+' .output').innerHTML=xhr.responseText;
+                } else {
+                // The request failed, throw an error
+                throw new Error("Request failed with status code " + xhr.status);
+                }
+            };
+        }
+        else if(data=='SEC2'){
+            var token=document.querySelector('#'+data+' #token').value;
+            if(token){
+                document.querySelector('#cap_img').src=domain+'/get_captcha/'+token;
+            }
+            else{
+                alert('Token is Empty')
+            }
+        }
+        else if(data=='SEC3'){
+            var token=document.querySelector('#'+data+' #token').value;
+            var birth=document.querySelector('#'+data+' #dob').value;
+            var id=document.querySelector('#'+data+' #dl').value;
+            var cap=document.querySelector('#'+data+' #capcha').value;
+            console.log(token,birth,id,cap);
+            if(token && birth && id && cap){
+                var xhr = new XMLHttpRequest();
+                url= domain+'/get_data/'+token+'/?dlno='+id+'&dob='+birth+'&capcha='+cap;
+                console.log(url);
+                xhr.open("GET",url);
+                xhr.send();
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        document.querySelector('#'+data+' .output').innerHTML=xhr.responseText;
+                    } else {
+                    throw new Error("Request failed with status code " + xhr.status);
+                    }
+                };            
+            }
+            else{
+                alert('Missing Parameter')
+            }
+            
+        }
+    }
+    
+
+
+    
+  </script>
+</form>
+</body>
+</html>
